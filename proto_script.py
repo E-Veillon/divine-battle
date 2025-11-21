@@ -39,15 +39,52 @@ def play_game(n_players: int, language: str) -> None:
     print("Game starts !")
     # 2) Game start, phase 1
     active_player_idx = 0
+    # 2.6) If all minor cards have been drawn, pass to phase 2, else pass to next player in phase 1
     while len(minor_draw_pile) > 0:
         active_player = players[active_player_idx]
+        print(f"It is {active_player.name}'s turn.")
         # 2.1) Turn step 1: Activation of revealed Permanent cards.
+        if active_player.has_active_permanents():
+            for active_perm in active_player.active_permanents:
+                yes_no = input(f"{active_player.name}, do you want to activate {active_perm}? [Y/N]")
+                if yes_no.lower() in {"y", "yes"}:
+                    active_player.activates_permanent_card(active_perm)
         # 2.2) Turn step 2: Draw a minor card, except if an activated Permanent card said otherwise.
+
+        if any(draw_effect in active_player.active_effects for draw_effect in draw_effects):
+            raise NotImplementedError
+        else:
+            active_player.draws_from(minor_draw_pile)
         # 2.3) Turn step 3: Reveal a new major card if wanted.
+        if active_player.has_unused_majors():
+            yes_no = input(f"{active_player.name}, do you want to reveal a major card? [Y/N]")
+            if yes_no.lower() in {"y", "yes"}:
+                player_majors = "\n".join(
+                    [
+                        f"{idx} - {card}" for idx, card
+                        in enumerate(active_player.major_pile, start=1)
+                    ]
+                )
+                card_idx = int(input(
+                    "Which card do you want to play?\n"
+                    f"{player_majors}"
+                ))
+                major_card = active_player.major_pile[card_idx - 1]
+                active_player.reveals_major_card(major_card)
         # 2.4) Turn step 4: Create a new combination or complete an existing one, if possible and wanted.
+        yes_no = input(
+            f"{active_player.name}, do you want to play a new combination "
+            "or complete an existing one? [Y/N]"
+        )
+        if yes_no.lower() in {"y", "yes"}:
+            raise NotImplementedError
         # NOTE: authorized combinations: pair, three/four of a kind, suite of 3+ cards.
         # 2.5) Turn step 5: If a combination has been created or completed, draw a major card.
-        # 2.6) If all minor cards have been drawn, pass to phase 2, else pass to next player in phase 1
+        if active_player.has_played_combination():
+            active_player.draws_from(major_draw_pile)
+        
+        active_player_idx += 1
+        active_player_idx %= len(players)
 
     # 3) Phase 2
     # 3.0) From now on, any player not having any card left in hand is out of game and doesn't play anymore.

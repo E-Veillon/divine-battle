@@ -33,9 +33,16 @@ class Player:
 
     # 2.1) Turn step 1: Activation of revealed Permanent cards.
     # 3.1) Turn step 1: Activation of revealed Permanent cards (possible alternative drawing effect).
-    def activates_permanent_card(self) -> None:
+    def activates_permanent_card(self, card: Card) -> None:
         """Player activates the effects of one of the permanent cards in their permanent area."""
-        raise NotImplementedError
+        assert card in self.active_permanents, (
+            f"The card {card} is not one of {self.name}'s active permanent cards."
+        )
+        for effect in card.special_effects:
+            # player = the one activating the effect
+            # target = one or several targeted entities (players, piles, areas, cards)
+            # choice = If the effect can be different depending on a choice between alternatives
+            effect.resolve(player=self, target=target, choice=(choice | None))
 
     # 2.2) Turn step 2: Draw a minor card, except if an activated Permanent card said otherwise.
     def adds_to_hand(self, cards: list[Card]):
@@ -44,9 +51,22 @@ class Player:
 
     # 2.3) Turn step 3: Reveal a new major card if wanted.
     # 3.3) Turn step 3: Reveal a new major card if wanted.
-    def reveals_major_card(self) -> None:
+    def reveals_major_card(self, card: Card) -> None:
         """Player reveals a major card from their major cards pile and activates its effects."""
-        raise NotImplementedError
+        assert card in self.major_pile, (
+            f"The card {card} is not one of {self.name}'s reserved major cards."
+        )
+        match card.type:
+            case MajorType.ACTION:
+                for effect in card.special_effects:
+                    # player = the one activating the effect
+                    # target = one or several targeted entities (players, piles, areas, cards)
+                    # choice = If the effect can be different depending on a choice between alternatives
+                    effect.resolve(player=self, target=target, choice=(choice | None))
+            case MajorType.EQUIPMENT:
+                raise NotImplementedError
+            case MajorType.PERMANENT:
+                raise NotImplementedError
 
     # 2.4) Turn step 4: Create a new combination or complete an existing one, if possible and wanted.
     # NOTE: authorized combinations: two/three/four of a kind, suite of 3+ cards.
