@@ -2,6 +2,7 @@
 
 import typing as tp
 from enum import Enum, StrEnum, IntEnum, auto
+from abc import abstractmethod
 
 try:
     from ..utils import check_type
@@ -9,7 +10,7 @@ except (ImportError, ModuleNotFoundError):
     from utils import check_type
 
 
-class Settings(StrEnum):
+class Settings(Enum):
     """
     Base class to extend settings classes functionalities.
     Not to be called directly.
@@ -27,7 +28,7 @@ class Settings(StrEnum):
         return list(member.value for member in cls)
 
     @classmethod
-    def contains(cls, value: str | tp.Self) -> bool:
+    def contains(cls, value: str | int | tp.Self) -> bool:
         """
         Check whether given value corresponds to one of the members.
         """
@@ -41,36 +42,62 @@ class Settings(StrEnum):
         else:
             return True
 
-
-class GameLanguage(Settings):
-    """Supported languages for the game."""
-    ENGLISH = auto()
-    FRENCH = auto()
-    err_msg = "is not a valid supported language"
+    @staticmethod
+    @abstractmethod
+    def get_error_msg() -> str:
+        raise NotImplementedError
 
 
-class GameMode(Settings):
-    """Supported game modes."""
-    SOLO = auto()
-    MULTIPLAYER = auto()
-    err_msg = "is not a supported game mode"
-
-
-class NBots(Settings):
+class NPlayers(Settings, IntEnum):
     ONE = auto()
     TWO = auto()
     THREE = auto()
-    err_msg = "is not a supported number of bots"
+    FOUR = auto()
+    FIVE = auto()
+    SIX = auto()
+
+    @staticmethod
+    def get_error_msg() -> str:
+        return "is not a supported number of players"
 
 
-def check_settings(setting: type[Settings], value: str | Settings) -> None:
+class GameLanguage(Settings, StrEnum):
+    """Supported languages for the game."""
+    ENGLISH = auto()
+    FRENCH = auto()
+
+    @staticmethod
+    def get_error_msg() -> str:
+        return "is not a valid supported language"
+
+
+class GameMode(Settings, StrEnum):
+    """Supported game modes."""
+    SOLO = auto()
+    MULTIPLAYER = auto()
+
+    @staticmethod
+    def get_error_msg() -> str:
+        return "is not a supported game mode"
+
+
+class NBots(Settings, IntEnum):
+    ONE = auto()
+    TWO = auto()
+    THREE = auto()
+
+    @staticmethod
+    def get_error_msg() -> str:
+        return "is not a supported number of bots"
+
+
+def check_settings(setting: type[Settings], value: str | int | Settings) -> None:
     """
     Assert that given value is supported by corresponding setting.
 
     Parameters
     ----------
-
-    setting: Settings
+    setting: type[Settings]
         Class object inheriting from the Settings class to check.
 
     value: str | Settings
@@ -78,7 +105,6 @@ def check_settings(setting: type[Settings], value: str | Settings) -> None:
 
     Raises
     ------
-
     TypeError
         If `value` is not of a supported type.
 
@@ -87,4 +113,4 @@ def check_settings(setting: type[Settings], value: str | Settings) -> None:
     """
     check_type(value, "value", (str, int, Settings))
     if not setting.contains(value):
-        raise ValueError(f"{setting.__name__}: {value!r} {setting.err_msg}.")
+        raise ValueError(f"{setting.__name__}: {value!r} {setting.get_error_msg()}.")
