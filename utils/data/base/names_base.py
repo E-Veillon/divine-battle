@@ -5,7 +5,10 @@ from enum import StrEnum
 
 
 class Names(StrEnum):
-    """Base class for every list of names to store in the game data."""
+    """
+    Base class for every list of names to store in the game data.
+    Should not be exported or used directly in higher levels of the project.
+    """
     @classmethod
     def names(cls) -> list[str]:
         """Get the list of all Enum members names."""

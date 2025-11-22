@@ -2,10 +2,9 @@
 Enum classes listing all possible card names in the game (french names).
 """
 
-import typing as tp
 from enum import auto
 
-from cards_names_base import CardNames, CardNamesPack
+from base import CardNames, CardNamesPack
 
 
 class NomsCartesMajeuresFr(CardNames):
