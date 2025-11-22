@@ -3,16 +3,10 @@
 
 import typing as tp
 
-try:
-    from .cards_names import (
-        CardName, EnglishCardNames, FrenchCardNames
-        )
-    from .special_effects import CardEffect
-except ImportError:
-    from cards_names import (
-        CardName, EnglishCardNames, FrenchCardNames
-        )
-    from special_effects import CardEffect
+from data import (
+    CardNames, EnglishCardNames, FrenchCardNames
+    )
+from effects import CardEffect
 
 
 class Card:
@@ -46,10 +40,20 @@ class Card:
     names_eng: EnglishCardNames = EnglishCardNames()
     names_fr: FrenchCardNames = FrenchCardNames()
 
+    def __init__(self, name: str | CardNames) -> None:
+        """
+        Parameters
+        ----------
+
+        name: str | CardName
+            Name of the card to instantiate.
+        """
+        self.name: CardNames = self._parse_name(name)
+
     @classmethod
-    def _parse_name(cls, name: str | CardName) -> CardName:
+    def _parse_name(cls, name: str | CardNames) -> CardNames:
         """Convert given name into an actual CardName object."""
-        if isinstance(name, CardName):
+        if isinstance(name, CardNames):
             return name
 
         if cls.names_eng.contains(name):
@@ -65,16 +69,6 @@ class Card:
         raise ValueError(
                 f"{cls.__name__}: {name!r} is not a valid card name."
             )
-
-    def __init__(self, name: str | CardName) -> None:
-        """
-        Parameters
-        ----------
-
-        name: str | CardName
-            Name of the card to instantiate.
-        """
-        self.name: CardName = self._parse_name(name)
 
     @property
     def family(self: tp.Self) -> str:

@@ -1,11 +1,11 @@
 """All possible cards names in the game, in all supported languages."""
 
-from cards_names_base import CardNames, CardNamesPack
+from base import CardNames, CardNamesPack, EffectNames
 from cards_names_english import EnglishCardNames
 from cards_names_french import FrenchCardNames
 
 __all__ = [
-    "CardNames", "CardNamesPack",
+    "CardNames", "CardNamesPack", "EffectNames",
     "EnglishCardNames",
     "FrenchCardNames"
 ]
