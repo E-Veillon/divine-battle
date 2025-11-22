@@ -1,4 +1,4 @@
-"""Base class for every list of names to store in the game data."""
+"""Base classes for every data storage classes in the game."""
 
 import typing as tp
 from enum import Enum, StrEnum, EnumMeta
@@ -26,7 +26,7 @@ class ABCEnumMeta(EnumMeta, ABCMeta):
 
 class GameDataBase(Enum):
     """
-    Base class for every list of data to store in the game.
+    Base class for every data storage subclasses in the game.
     Should not be exported or used directly in higher levels of the project.
     """
     @classmethod

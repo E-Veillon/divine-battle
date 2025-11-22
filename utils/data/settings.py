@@ -2,8 +2,17 @@
 
 from enum import auto, IntEnum, StrEnum
 
-from base_classes import Settings
-from common_asserts import check_type
+from base import Settings, check_type
+
+
+class GameLanguage(Settings, StrEnum):
+    """Supported languages for the game."""
+    ENGLISH = auto()
+    FRENCH = auto()
+
+    @staticmethod
+    def get_error_msg() -> str:
+        return "is not a valid supported language"
 
 
 class NPlayers(Settings, IntEnum):
@@ -19,20 +28,13 @@ class NPlayers(Settings, IntEnum):
         return "is not a supported number of players"
 
 
-class GameLanguage(Settings, StrEnum):
-    """Supported languages for the game."""
-    ENGLISH = auto()
-    FRENCH = auto()
-
-    @staticmethod
-    def get_error_msg() -> str:
-        return "is not a valid supported language"
-
-
 class NBots(Settings, IntEnum):
     ONE = auto()
     TWO = auto()
     THREE = auto()
+    FOUR = auto()
+    FIVE = auto()
+    SIX = auto()
 
     @staticmethod
     def get_error_msg() -> str:
@@ -61,4 +63,4 @@ def check_settings(setting: type[Settings], value: str | int | Settings) -> None
     """
     check_type(value, "value", (str, int, Settings))
     if not setting.contains(value):
-        raise ValueError(f"{setting.__name__}: {value!r} {setting.get_error_msg()}.")
+        raise ValueError(f"{setting.name}: {value!r} {setting.get_error_msg()}.")
