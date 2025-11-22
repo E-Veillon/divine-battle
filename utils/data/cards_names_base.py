@@ -3,42 +3,20 @@ Base class for handling card names enum classes.
 """
 
 import typing as tp
-from enum import StrEnum
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
+from names_base import Names
 
-class CardNames(StrEnum):
+
+class CardNames(Names):
     """
     Base class for handling families' cards names enum classes.
     In order to implement a new card family language, inherit from this class
     and only define all card names in the family as capitalized enum members.
     Do not call this class directly.
     """
-    @classmethod
-    def names(cls) -> list[str]:
-        """Get the list of all Enum members names."""
-        return list(member.name for member in cls)
-
-    @classmethod
-    def values(cls) -> list[str]:
-        """Get the list of all Enum members values."""
-        return list(member.value for member in cls)
-
-    @classmethod
-    def contains(cls, name: str | tp.Self) -> bool:
-        """
-        Check whether given name corresponds to one of the cards.
-        """
-        if isinstance(name, cls):
-            name = name.value
-
-        try:
-            card_name = cls(name)
-        except (TypeError, ValueError):
-            return False
-        else:
-            return True
+    ...
 
 
 class CardNamesPack(ABC):
