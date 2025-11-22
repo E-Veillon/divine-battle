@@ -2,14 +2,18 @@
 
 import random as rdm
 
-from ..config.supported_settings import check_settings, GameLanguage
+from data.settings import check_settings, GameLanguage
 from card import Card
-from special_effects import CardEffect
+from effects import CardEffect
 from card_piles import (
     DrawPile, MajorCardsDrawPile, MinorCardsDrawPile,
     ActionCardsDiscardPile, MinorCardsDiscardPile
 )
 
+class MajorType:
+    ACTION = "action"
+    EQUIPMENT = "equipment"
+    PERMANENT = "permanent"
 
 class Player:
     name: str
@@ -19,6 +23,8 @@ class Player:
     active_permanents: list[Card]
     inactive_permanents: list[Card]
     active_effects: list[CardEffect]
+    _revealed_major_card: bool
+    _played_combination: bool
 
     def __init__(self, name: str, language: str) -> None:
         check_settings(GameLanguage, language)
@@ -30,6 +36,8 @@ class Player:
         self.active_permanents = []
         self.inactive_permanents = []
         self.active_effects = []
+        self._revealed_major_card = False
+        self._played_combination = False
 
     # 2.1) Turn step 1: Activation of revealed Permanent cards.
     # 3.1) Turn step 1: Activation of revealed Permanent cards (possible alternative drawing effect).
@@ -67,6 +75,7 @@ class Player:
                 raise NotImplementedError
             case MajorType.PERMANENT:
                 raise NotImplementedError
+        self._revealed_major_card = True
 
     # 2.4) Turn step 4: Create a new combination or complete an existing one, if possible and wanted.
     # NOTE: authorized combinations: two/three/four of a kind, suite of 3+ cards.
@@ -74,10 +83,12 @@ class Player:
     def plays_combination(self, cards: list[Card]) -> None:
         """Player puts a new combination in their combination area."""
         raise NotImplementedError
+        self._played_combination = True
 
     def adds_to_combination(self, cards: list[Card], combination: list[Card]) -> None:
         """PLayer adds cards from their hand to one of their existing combinations."""
         raise NotImplementedError
+        self._played_combination = True
 
     # 2.5) Turn step 5: If a combination was created or completed and major pile is not empty, draw a major card.
     # 3.5) Turn step 5: If a combination was created or completed and major pile is not empty, draw a major card.
@@ -109,10 +120,15 @@ class Player:
 
     def count_score(self) -> int:
         """
-        Calculate current player's score taking account of their combinations
+        Calculate player's current score taking account of their combinations
         and appliable major cards score modification effects.
         """
         raise NotImplementedError
+
+    def ends_turn(self) -> None:
+        """Player finishes their turn."""
+        self._revealed_major_card = False
+        self._played_combination = False
 
     # ===== Status check methods =====
     def has_death(self) -> bool:
@@ -148,6 +164,15 @@ class Player:
     def has_active_effects(self) -> bool:
         """Whether the player has at least one active effect ongoing."""
         return len(self.active_effects) > 0
+
+    def has_played_combination(self) -> bool:
+        """Whether the player has played or completed a combination this turn."""
+        return self._played_combination
+
+    def has_revealed_major(self) -> bool:
+        """Whether the player has revealed a new major card this turn."""
+        return self._revealed_major_card
+
     # 3.0) From now on, any player not having any card left in hand is out of game and doesn't play anymore.
     # No risk of getting Death card anymore, but cannot use any reserved major card, counter attacks, or earn any more points.
 
