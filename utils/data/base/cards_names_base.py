@@ -6,7 +6,7 @@ import typing as tp
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 
-from utils.data.base.names_base import Names
+from base_classes import Names
 
 
 class CardNames(Names):

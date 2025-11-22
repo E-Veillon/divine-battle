@@ -1,6 +1,6 @@
 """Base class for card effects names classes."""
 
-from names_base import Names
+from base_classes import Names
 
 
 class EffectNames(Names):
