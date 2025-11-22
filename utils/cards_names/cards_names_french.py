@@ -5,13 +5,10 @@ Enum classes listing all possible card names in the game (french names).
 import typing as tp
 from enum import auto
 
-try:
-    from .cards_names_base import CardName
-except ImportError:
-    from cards_names_base import CardName
+from cards_names_base import CardNames, CardNamesPack
 
 
-class NomsCartesMajeuresFr(CardName):
+class NomsCartesMajeuresFr(CardNames):
     MAT = auto()
     BATELEUR = auto()
     PAPESSE = auto()
@@ -36,7 +33,7 @@ class NomsCartesMajeuresFr(CardName):
     MONDE = auto()
 
 
-class NomsCartesBatonsFr(CardName):
+class NomsCartesBatonsFr(CardNames):
     AS_DE_BATONS = auto()
     DEUX_DE_BATONS = auto()
     TROIS_DE_BATONS = auto()
@@ -53,7 +50,7 @@ class NomsCartesBatonsFr(CardName):
     ROI_DE_BATONS = auto()
 
 
-class NomsCartesCoupesFr(CardName):
+class NomsCartesCoupesFr(CardNames):
     AS_DE_COUPES = auto()
     DEUX_DE_COUPES = auto()
     TROIS_DE_COUPES = auto()
@@ -70,7 +67,7 @@ class NomsCartesCoupesFr(CardName):
     ROI_DE_COUPES = auto()
 
 
-class NomsCartesDeniersFr(CardName):
+class NomsCartesDeniersFr(CardNames):
     AS_DE_DENIERS = auto()
     DEUX_DE_DENIERS = auto()
     TROIS_DE_DENIERS = auto()
@@ -87,7 +84,7 @@ class NomsCartesDeniersFr(CardName):
     ROI_DE_DENIERS = auto()
 
 
-class NomsCartesEpeesFr(CardName):
+class NomsCartesEpeesFr(CardNames):
     AS_D_EPEES = auto()
     DEUX_D_EPEES = auto()
     TROIS_D_EPEES = auto()
@@ -104,7 +101,7 @@ class NomsCartesEpeesFr(CardName):
     ROI_D_EPEES = auto()
 
 
-class FrenchCardNames:
+class FrenchCardNames(CardNamesPack):
     """Store classes of card families names."""
     def __init__(self) -> None:
         self.MAJEURES = NomsCartesMajeuresFr
@@ -112,9 +109,13 @@ class FrenchCardNames:
         self.COUPES = NomsCartesCoupesFr
         self.DENIERS = NomsCartesDeniersFr
         self.EPEES = NomsCartesEpeesFr
-    
+
+    def __getitem__(self, key: str) -> type[CardNames]:
+        return self._getitem_factory()(self, key)
+
     @property
-    def families(self) -> tuple[type[CardName], ...]:
+    def families(self) -> tuple[type[CardNames], ...]:
+        """Tuple of each card family in the pack. The major family must be first."""
         return (
             self.MAJEURES,
             self.BATONS,
@@ -122,29 +123,6 @@ class FrenchCardNames:
             self.DENIERS,
             self.EPEES
         )
-
-    def __getitem__(self, key: str) -> type[CardName]:
-        match key.lower():
-            case "majeure" | "majeures":
-                return self.MAJEURES
-            case "batons":
-                return self.BATONS
-            case "coupes":
-                return self.COUPES
-            case "deniers":
-                return self.DENIERS
-            case "epees":
-                return self.EPEES
-            case str():
-                raise KeyError(
-                    f"{self.__class__.__name__}: {key!r} is not a valid key. "
-                    "Supported keys are: 'majeures', 'batons', 'coupes', 'deniers', 'epees'."
-                )
-            case _:
-                raise TypeError(
-                    f"{self.__class__.__name__}: 'key' expected a type 'str', "
-                    f"got {type(key).__name__!r} instead."
-                )
 
     def get_all_names(self) -> list[str]:
         """Get list of Enum member names of all cards in the pack."""
@@ -157,7 +135,7 @@ class FrenchCardNames:
                 self.EPEES.names()
             ), start=[]
         )
-    
+
     def get_all_values(self) -> list[str]:
         """Get list of Enum member values of all cards in the pack."""
         return sum(
@@ -169,27 +147,10 @@ class FrenchCardNames:
                 self.EPEES.values()
             ), start=[]
         )
-    
-    def is_minor(self, name: str | CardName) -> bool:
-        """
-        Check whether given name corresponds to any minor card in the pack.
-        """
-        return any(family.contains(name) for family in self.families[1:])
-    
-    def is_major(self, name: str | CardName) -> bool:
-        """
-        Check whether given name corresponds to any major card in the pack.
-        """
-        return self.MAJEURES.contains(name)
-
-    def contains(self, name: str | CardName) -> bool:
-        """
-        Check whether given name corresponds to any card in the pack.
-        """
-        return any(family.contains(name) for family in self.families)
 
 
 if __name__ == "__main__":
+    """Test routine for the pack and its families."""
     print(f"{NomsCartesMajeuresFr.names()=}")
     print(f"{NomsCartesMajeuresFr.values()=}")
     print(f"{NomsCartesMajeuresFr.contains('mat')=}")
